@@ -3,19 +3,19 @@
 
 ## AnyKernel setup
 # EDIFY properties
-kernel.string=DirtyV by bsmitty83 @ xda-developers
+kernel.string=BeyondStock-Hima by Captain_Throwback
 do.devicecheck=1
 do.initd=1
 do.modules=0
 do.cleanup=1
-device.name1=maguro
-device.name2=toro
-device.name3=toroplus
-device.name4=
-device.name5=
+device.name1=htc_himawhl
+device.name2=htc_himawl
+device.name3=htc_himaul
+device.name4=htc_himauhl
+device.name5=htc_hima
 
 # shell variables
-block=/dev/block/platform/omap/omap_hsmmc.0/by-name/boot;
+block=/dev/block/bootdevice/by-name/boot;
 
 ## end setup
 
@@ -149,8 +149,6 @@ replace_file() {
 ## AnyKernel permissions
 # set permissions for included files
 chmod -R 755 $ramdisk
-chmod 644 $ramdisk/sbin/media_profiles.xml
-
 
 ## AnyKernel install
 dump_boot;
@@ -159,30 +157,17 @@ dump_boot;
 
 # init.rc
 backup_file init.rc;
-replace_string init.rc "cpuctl cpu,timer_slack" "mount cgroup none /dev/cpuctl cpu" "mount cgroup none /dev/cpuctl cpu,timer_slack";
-append_file init.rc "run-parts" init;
+append_file init.rc "init.d" init;
 
-# init.tuna.rc
-backup_file init.tuna.rc;
-insert_line init.tuna.rc "nodiratime barrier=0" after "mount_all /fstab.tuna" "\tmount ext4 /dev/block/platform/omap/omap_hsmmc.0/by-name/userdata /data remount nosuid nodev noatime nodiratime barrier=0\n";
-append_file init.tuna.rc "dvbootscript" init.tuna;
+# init.qcom.rc
+backup_file init.qcom.rc;
+insert_line init.qcom.rc "/storage/sdcard1" after "symlink /storage/ext_sd /sdcard2" "    symlink /storage/ext_sd /storage/sdcard1
+";
 
-# init.superuser.rc
-if [ -f init.superuser.rc ]; then
-  backup_file init.superuser.rc;
-  replace_string init.superuser.rc "Superuser su_daemon" "# su daemon" "\n# Superuser su_daemon";
-  prepend_file init.superuser.rc "SuperSU daemonsu" init.superuser;
-else
-  replace_file init.superuser.rc 750 init.superuser.rc;
-  insert_line init.rc "init.superuser.rc" after "on post-fs-data" "    import /init.superuser.rc\n";
-fi;
+# init.htc_hima.rc
+backup_file init.htc_hima.rc;
+remove_line init.htc_hima.rc "start hrdump";
 
-# fstab.tuna
-backup_file fstab.tuna;
-replace_line fstab.tuna "/by-name/system" "/dev/block/platform/omap/omap_hsmmc.0/by-name/system    /system             ext4      nodev,noatime,nodiratime,barrier=0,data=writeback,noauto_da_alloc,discard    wait";
-replace_line fstab.tuna "/by-name/cache" "/dev/block/platform/omap/omap_hsmmc.0/by-name/cache     /cache              ext4      nosuid,nodev,noatime,nodiratime,errors=panic,barrier=0,nomblk_io_submit,data=writeback,noauto_da_alloc    wait,check";
-replace_line fstab.tuna "/by-name/userdata" "/dev/block/platform/omap/omap_hsmmc.0/by-name/userdata  /data               ext4      nosuid,nodev,noatime,errors=panic,nomblk_io_submit,data=writeback,noauto_da_alloc    wait,check,encryptable=/dev/block/platform/omap/omap_hsmmc.0/by-name/metadata";
-append_file fstab.tuna "usbdisk" fstab;
 
 # end ramdisk changes
 
