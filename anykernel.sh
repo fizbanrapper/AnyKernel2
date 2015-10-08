@@ -3,7 +3,7 @@
 
 ## AnyKernel setup
 # EDIFY properties
-kernel.string=Hypernova, Powered by ElementalX and FrancoKernel
+kernel.string=Team-M8 kernel, the best you've never tried
 do.devicecheck=1
 do.initd=0
 do.modules=1
